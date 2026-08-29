@@ -33,13 +33,22 @@ export function PainelDia({
 }: Props) {
   const [texto, setTexto] = useState("");
   const [prioridade, setPrioridade] = useState<Prioridade>("rotina");
+  const [hora, setHora] = useState("");
   const d = parseYmd(dia);
   const lista = ordenarTarefas(tarefas);
+  const ehHoje = dia === ymd(new Date());
+
+  function atrasada(t: Tarefa): boolean {
+    if (!ehHoje || t.feita || !t.hora) return false;
+    const agora = new Date();
+    const [h, m] = t.hora.split(":").map(Number);
+    return (h ?? 0) * 60 + (m ?? 0) < agora.getHours() * 60 + agora.getMinutes();
+  }
 
   function adicionar() {
     const t = texto.trim();
     if (!t) return;
-    onAdicionar(t, prioridade);
+    onAdicionar(t, prioridade, hora || null);
     setTexto("");
   }
 
@@ -73,6 +82,14 @@ export function PainelDia({
           className="min-w-0 flex-1 rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
         />
         <div className="flex gap-2">
+          <input
+            type="time"
+            value={hora}
+            onChange={(e) => setHora(e.target.value)}
+            aria-label="Horário (opcional)"
+            className="num rounded-[10px] border border-border bg-surface-2 px-2 py-2 text-sm outline-none"
+            style={{ colorScheme: "dark" }}
+          />
           <select
             value={prioridade}
             onChange={(e) => setPrioridade(e.target.value as Prioridade)}
@@ -122,6 +139,18 @@ export function PainelDia({
             </button>
 
             <span
+              className="num shrink-0 text-xs"
+              style={{
+                minWidth: "40px",
+                color: t.hora ? "var(--gold-light)" : "var(--muted-foreground)",
+                opacity: t.feita ? 0.4 : t.hora ? 1 : 0.3,
+                ...(atrasada(t) ? { color: "var(--urgente)", opacity: 1 } : {}),
+              }}
+            >
+              {t.hora ? t.hora.slice(0, 5) : "--:--"}
+            </span>
+
+            <span
               className="min-w-0 flex-1 text-sm"
               style={{
                 opacity: t.feita ? 0.4 : 1,
@@ -155,7 +184,7 @@ export function PainelDia({
 
       {lista.length === 0 && (
         <p className="mt-4 text-sm text-muted-foreground">
-          Nenhuma tarefa nesse dia ainda. Escreva a primeira acima e escolha o nível.
+          Nenhuma tarefa nesse dia ainda. Escreva a primeira acima, defina o horário e escolha o nível.
         </p>
       )}
 
