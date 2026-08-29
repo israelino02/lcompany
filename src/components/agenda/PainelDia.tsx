@@ -9,6 +9,7 @@ import {
   isFimDeSemana,
   ordenarTarefas,
   parseYmd,
+  ymd,
   type Prioridade,
   type Tarefa,
 } from "@/lib/agenda";
@@ -16,7 +17,7 @@ import {
 interface Props {
   dia: string;
   tarefas: Tarefa[];
-  onAdicionar: (texto: string, prioridade: Prioridade) => void;
+  onAdicionar: (texto: string, prioridade: Prioridade, hora: string | null) => void;
   onAlternar: (t: Tarefa) => void;
   onExcluir: (id: string) => void;
   onRepetir: () => void;
