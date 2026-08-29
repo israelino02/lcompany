@@ -6,6 +6,7 @@ export interface Tarefa {
   data: string;
   texto: string;
   prioridade: Prioridade;
+  hora: string | null;
   feita: boolean;
   created_at: string;
 }
@@ -123,6 +124,12 @@ export function dataEscrita(iso: string): string {
 export function ordenarTarefas(tarefas: Tarefa[]): Tarefa[] {
   return [...tarefas].sort((a, b) => {
     if (a.feita !== b.feita) return a.feita ? 1 : -1;
+    if (a.hora !== b.hora) {
+      if (a.hora === null) return 1;
+      if (b.hora === null) return -1;
+      const h = a.hora.localeCompare(b.hora);
+      if (h !== 0) return h;
+    }
     const o = PRIO_ORDEM[a.prioridade] - PRIO_ORDEM[b.prioridade];
     if (o !== 0) return o;
     return a.created_at.localeCompare(b.created_at);

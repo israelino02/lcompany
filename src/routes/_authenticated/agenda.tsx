@@ -105,11 +105,11 @@ function AgendaPage() {
   const tarefasDoDia = tarefas.filter((t) => t.data === selecionado);
   const conclusao = conclusaoDoMes(tarefas, metas);
 
-  async function adicionarTarefa(texto: string, prioridade: Prioridade) {
+  async function adicionarTarefa(texto: string, prioridade: Prioridade, hora: string | null) {
     if (!userId) return;
     const { data, error } = await supabase
       .from("tarefas")
-      .insert({ user_id: userId, data: selecionado, texto, prioridade })
+      .insert({ user_id: userId, data: selecionado, texto, prioridade, hora })
       .select()
       .single();
     if (error || !data) {
@@ -155,6 +155,7 @@ function AgendaPage() {
       data: string;
       texto: string;
       prioridade: Prioridade;
+      hora: string | null;
     }[] = [];
     for (const dia of restantes) {
       const existentes = new Set(
@@ -169,6 +170,7 @@ function AgendaPage() {
           data: dia,
           texto: t.texto,
           prioridade: t.prioridade,
+          hora: t.hora,
         });
       }
     }

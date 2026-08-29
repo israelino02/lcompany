@@ -49,6 +49,7 @@ export type Database = {
           created_at: string
           data: string
           feita: boolean
+          hora: string | null
           id: string
           prioridade: string
           texto: string
@@ -58,6 +59,7 @@ export type Database = {
           created_at?: string
           data: string
           feita?: boolean
+          hora?: string | null
           id?: string
           prioridade?: string
           texto: string
@@ -67,6 +69,7 @@ export type Database = {
           created_at?: string
           data?: string
           feita?: boolean
+          hora?: string | null
           id?: string
           prioridade?: string
           texto?: string
