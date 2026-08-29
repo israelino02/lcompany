@@ -221,7 +221,6 @@ function LoginPage() {
       <aside
         className="relative hidden flex-col justify-end p-12 md:flex"
         style={{
-          backgroundColor: "#0b1density",
           background:
             "radial-gradient(90% 70% at 70% 10%, #101b38 0%, #070c1a 65%), #070c1a",
           borderLeft: "1px solid var(--border-gold)",
