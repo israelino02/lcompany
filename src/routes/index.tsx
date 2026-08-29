@@ -23,27 +23,35 @@ export const Route = createFileRoute("/")({
   component: LoginPage,
 });
 
+const DOMINIO_LOGIN = "agenda.local";
+
+function normalizaLogin(v: string): string {
+  return v
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "");
+}
+
 function traduzErro(msg: string): string {
   const m = msg.toLowerCase();
-  if (m.includes("invalid login credentials")) return "E-mail ou senha incorretos";
+  if (m.includes("invalid login credentials")) return "Login ou senha incorretos";
   if (m.includes("already registered") || m.includes("already been registered"))
-    return "Esse e-mail já está cadastrado";
+    return "Esse login já está em uso";
   if (m.includes("weak") || m.includes("easy to guess"))
     return "Essa senha é fraca demais. Escolha uma senha mais forte.";
   if (m.includes("password should be at least"))
     return "A senha precisa ter pelo menos 6 caracteres";
-  if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar";
   if (m.includes("email rate limit") || m.includes("too many"))
     return "Muitas tentativas. Espere um instante e tente de novo.";
   if (m.includes("unable to validate email") || m.includes("invalid email"))
-    return "Digite um e-mail válido";
+    return "Use apenas letras, números, ponto, hífen ou underline no login";
   return "Não foi possível concluir. Tente novamente.";
 }
 
 function LoginPage() {
   const navigate = useNavigate();
   const [modo, setModo] = useState<"entrar" | "criar">("entrar");
-  const [email, setEmail] = useState("");
+  const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -63,15 +71,21 @@ function LoginPage() {
     e.preventDefault();
     setErro(null);
     setAviso(null);
-    if (!email.trim() || !senha) {
-      setErro("Preencha e-mail e senha");
+    const usuario = normalizaLogin(login);
+    if (!usuario || !senha) {
+      setErro("Preencha login e senha");
       return;
     }
+    if (usuario.length < 3) {
+      setErro("O login precisa ter pelo menos 3 caracteres");
+      return;
+    }
+    const email = `${usuario}@${DOMINIO_LOGIN}`;
     setCarregando(true);
     try {
       if (modo === "entrar") {
         const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
+          email,
           password: senha,
         });
         if (error) {
@@ -81,34 +95,31 @@ function LoginPage() {
         navigate({ to: "/agenda" });
       } else {
         const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
+          email,
           password: senha,
-          options: { emailRedirectTo: window.location.origin },
+          options: { data: { login: usuario } },
         });
         if (error) {
           setErro(traduzErro(error.message));
           return;
         }
-        if (data.session) navigate({ to: "/agenda" });
-        else setAviso("Conta criada. Confirme o e-mail que enviamos para entrar.");
+        if (data.session) {
+          navigate({ to: "/agenda" });
+          return;
+        }
+        const { error: erroEntrada } = await supabase.auth.signInWithPassword({
+          email,
+          password: senha,
+        });
+        if (erroEntrada) {
+          setErro(traduzErro(erroEntrada.message));
+          return;
+        }
+        navigate({ to: "/agenda" });
       }
     } finally {
       setCarregando(false);
     }
-  }
-
-  async function recuperar() {
-    setErro(null);
-    setAviso(null);
-    if (!email.trim()) {
-      setErro("Digite seu e-mail para receber o link de recuperação");
-      return;
-    }
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: window.location.origin,
-    });
-    if (error) setErro(traduzErro(error.message));
-    else setAviso("Enviamos um link de recuperação para seu e-mail.");
   }
 
   return (
@@ -127,17 +138,18 @@ function LoginPage() {
               : "Comece a organizar seu mês operacional."}
           </p>
 
-          <label className="label-caps mt-8 block" htmlFor="email">
-            E-mail
+          <label className="label-caps mt-8 block" htmlFor="login">
+            Login
           </label>
           <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="login"
+            type="text"
+            autoCapitalize="none"
+            autoComplete="username"
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
             className="mt-2 w-full rounded-[10px] border border-border bg-surface-2 px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
-            placeholder="voce@agencia.com"
+            placeholder="seu.login"
           />
 
           <label className="label-caps mt-5 block" htmlFor="senha">
@@ -152,6 +164,7 @@ function LoginPage() {
             className="mt-2 w-full rounded-[10px] border border-border bg-surface-2 px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
             placeholder="••••••••"
           />
+
 
           {erro && (
             <p
