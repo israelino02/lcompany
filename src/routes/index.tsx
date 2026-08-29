@@ -223,15 +223,10 @@ function LoginPage() {
             </button>
           </p>
 
-          {modo === "entrar" && (
-            <button
-              type="button"
-              onClick={recuperar}
-              className="mt-3 text-xs text-muted-foreground underline underline-offset-4"
-            >
-              Esqueci minha senha
-            </button>
-          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            Guarde bem sua senha: como o acesso é só por login, não há recuperação por
+            e-mail.
+          </p>
         </form>
       </div>
 
