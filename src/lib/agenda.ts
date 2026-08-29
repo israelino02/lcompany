@@ -88,8 +88,8 @@ export function ymd(d: Date): string {
 }
 
 export function parseYmd(s: string): Date {
-  const [y, m, d] = s.split("-").map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1);
+  const parts = s.split("-").map(Number);
+  return new Date(parts[0] ?? 1970, (parts[1] ?? 1) - 1, parts[2] ?? 1);
 }
 
 export function mesKey(ano: number, mes: number): string {
