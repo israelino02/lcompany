@@ -28,9 +28,13 @@ function traduzErro(msg: string): string {
   if (m.includes("invalid login credentials")) return "E-mail ou senha incorretos";
   if (m.includes("already registered") || m.includes("already been registered"))
     return "Esse e-mail já está cadastrado";
+  if (m.includes("weak") || m.includes("easy to guess"))
+    return "Essa senha é fraca demais. Escolha uma senha mais forte.";
   if (m.includes("password should be at least"))
     return "A senha precisa ter pelo menos 6 caracteres";
   if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar";
+  if (m.includes("email rate limit") || m.includes("too many"))
+    return "Muitas tentativas. Espere um instante e tente de novo.";
   if (m.includes("unable to validate email") || m.includes("invalid email"))
     return "Digite um e-mail válido";
   return "Não foi possível concluir. Tente novamente.";
