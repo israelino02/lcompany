@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      metas: {
+        Row: {
+          alvo: number
+          atual: number
+          created_at: string
+          id: string
+          mes: string
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          alvo?: number
+          atual?: number
+          created_at?: string
+          id?: string
+          mes: string
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          alvo?: number
+          atual?: number
+          created_at?: string
+          id?: string
+          mes?: string
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tarefas: {
+        Row: {
+          created_at: string
+          data: string
+          feita: boolean
+          id: string
+          prioridade: string
+          texto: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          feita?: boolean
+          id?: string
+          prioridade?: string
+          texto: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          feita?: boolean
+          id?: string
+          prioridade?: string
+          texto?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
