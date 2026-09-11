@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Plus, X } from "lucide-react";
+import { ArrowLeft, Pencil, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AGENCIAS,
@@ -38,9 +47,15 @@ export const Route = createFileRoute("/_authenticated/clientes")({
 function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [dialogAberto, setDialogAberto] = useState(false);
+  const [editando, setEditando] = useState<Cliente | null>(null);
   const [nome, setNome] = useState("");
   const [agencia, setAgencia] = useState<Agencia>("diretos");
   const [mensal, setMensal] = useState("");
+  const [servico, setServico] = useState("");
+  const [diaPagamento, setDiaPagamento] = useState("");
+  const [observacao, setObservacao] = useState("");
+  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
@@ -66,23 +81,65 @@ function ClientesPage() {
   const encerrados = clientes.filter((c) => !c.ativo);
   const total = useMemo(() => receitaTotal(clientes), [clientes]);
 
-  async function adicionar() {
+  function abrirNovo() {
+    setEditando(null);
+    setNome("");
+    setAgencia("diretos");
+    setMensal("");
+    setServico("");
+    setDiaPagamento("");
+    setObservacao("");
+    setDialogAberto(true);
+  }
+
+  function abrirEdicao(cliente: Cliente) {
+    setEditando(cliente);
+    setNome(cliente.nome);
+    setAgencia(cliente.agencia as Agencia);
+    setMensal(cliente.mensal == null ? "" : String(cliente.mensal));
+    setServico(cliente.servico ?? "");
+    setDiaPagamento(cliente.dia_pagamento ?? "");
+    setObservacao(cliente.observacao ?? "");
+    setDialogAberto(true);
+  }
+
+  async function salvarCliente() {
     const t = nome.trim();
     if (!t || !userId) return;
-    const ordem = Math.max(0, ...clientes.map((c) => c.ordem)) + 1;
     const valor = mensal.trim() ? Number(mensal.replace(",", ".")) : null;
-    const { data, error } = await supabase
-      .from("clientes")
-      .insert({ user_id: userId, nome: t, agencia, mensal: valor, ordem })
-      .select()
-      .single();
+    if (valor != null && (!Number.isFinite(valor) || valor < 0)) {
+      toast.error("Informe um valor mensal válido.");
+      return;
+    }
+    setSalvando(true);
+    const campos = {
+      nome: t,
+      agencia,
+      mensal: valor,
+      servico: servico.trim() || null,
+      dia_pagamento: diaPagamento.trim() || null,
+      observacao: observacao.trim() || null,
+    };
+    const consulta = editando
+      ? supabase.from("clientes").update(campos).eq("id", editando.id)
+      : supabase.from("clientes").insert({
+          ...campos,
+          user_id: userId,
+          ordem: Math.max(0, ...clientes.map((c) => c.ordem)) + 1,
+        });
+    const { data, error } = await consulta.select().single();
+    setSalvando(false);
     if (error || !data) {
       toast.error("Não foi possível salvar. Verifique sua conexão.");
       return;
     }
-    setClientes((prev) => [...prev, data as Cliente]);
-    setNome("");
-    setMensal("");
+    setClientes((prev) =>
+      editando
+        ? prev.map((cliente) => (cliente.id === editando.id ? (data as Cliente) : cliente))
+        : [...prev, data as Cliente],
+    );
+    setDialogAberto(false);
+    toast.success(editando ? "Cliente atualizado." : "Cliente adicionado.");
   }
 
   async function alternarAtivo(c: Cliente) {
@@ -123,13 +180,16 @@ function ClientesPage() {
             </span>
           </h1>
         </div>
-        <Link
-          to="/agenda"
-          className="flex items-center gap-1.5 rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-xs text-muted-foreground"
-        >
-          <ArrowLeft size={13} />
-          Voltar à agenda
-        </Link>
+        <div className="flex items-center gap-2">
+          <Button onClick={abrirNovo} className="gold-gradient text-primary-foreground">
+            <Plus /> Novo cliente
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/agenda">
+              <ArrowLeft /> Voltar à agenda
+            </Link>
+          </Button>
+        </div>
       </header>
 
       <div className="mt-6 flex flex-col gap-5">
@@ -174,13 +234,22 @@ function ClientesPage() {
                     <span className="num text-xs" style={{ color: "var(--gold-light)" }}>
                       {c.mensal != null ? brl(Number(c.mensal)) : "—"}
                     </span>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => abrirEdicao(c)}
+                      aria-label={`Editar ${c.nome}`}
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
                       onClick={() => alternarAtivo(c)}
-                      className="rounded-[8px] border border-border px-2 py-1 text-[10px] text-muted-foreground"
+                      variant="outline"
+                      size="sm"
                     >
                       Encerrar
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -214,68 +283,120 @@ function ClientesPage() {
                   <span className="num text-xs text-muted-foreground">
                     {c.mensal != null ? brl(Number(c.mensal)) : "—"}
                   </span>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => abrirEdicao(c)}
+                    aria-label={`Editar ${c.nome}`}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
                     onClick={() => alternarAtivo(c)}
-                    className="rounded-[8px] border px-2 py-1 text-[10px]"
-                    style={{ borderColor: "var(--border-gold)", color: "var(--gold)" }}
+                    variant="outline"
+                    size="sm"
                   >
                     Reativar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => excluir(c.id)}
                     aria-label={`Excluir ${c.nome}`}
-                    className="text-muted-foreground"
+                    variant="ghost"
+                    size="icon"
                   >
                     <X size={14} />
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
           )}
         </section>
 
-        <section className="surface-card p-4 sm:p-5">
-          <p className="label-caps">Nova conta</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <input
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && adicionar()}
-              placeholder="Nome do cliente"
-              className="min-w-[160px] flex-1 rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-[13px] outline-none"
-            />
-            <select
-              value={agencia}
-              onChange={(e) => setAgencia(e.target.value as Agencia)}
-              className="rounded-[10px] border border-border bg-surface-2 px-2 py-2 text-[12px]"
-            >
-              {AGENCIAS.map((a) => (
-                <option key={a} value={a}>
-                  {AGENCIA_LABEL[a]}
-                </option>
-              ))}
-            </select>
-            <input
-              value={mensal}
-              onChange={(e) => setMensal(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && adicionar()}
-              placeholder="Mensal"
-              inputMode="decimal"
-              className="num w-[92px] rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-[13px] outline-none"
-            />
-            <button
-              type="button"
-              onClick={adicionar}
-              className="gold-gradient flex h-[38px] w-[38px] items-center justify-center rounded-[10px]"
-              aria-label="Adicionar cliente"
-            >
-              <Plus size={16} color="#0B1020" strokeWidth={3} />
-            </button>
-          </div>
-        </section>
       </div>
+
+      <Dialog open={dialogAberto} onOpenChange={setDialogAberto}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-background sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{editando ? "Editar cliente" : "Novo cliente"}</DialogTitle>
+            <DialogDescription>
+              Registre a agência, o trabalho realizado e os dados de pagamento.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-1.5 text-xs text-muted-foreground sm:col-span-2">
+              Nome do cliente
+              <input
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                className="rounded-[8px] border border-border bg-surface-2 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+                autoFocus
+              />
+            </label>
+            <label className="grid gap-1.5 text-xs text-muted-foreground">
+              Agência
+              <select
+                value={agencia}
+                onChange={(e) => setAgencia(e.target.value as Agencia)}
+                className="rounded-[8px] border border-border bg-surface-2 px-3 py-2.5 text-sm text-foreground"
+              >
+                {AGENCIAS.map((a) => (
+                  <option key={a} value={a}>{AGENCIA_LABEL[a]}</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1.5 text-xs text-muted-foreground">
+              Valor mensal
+              <input
+                value={mensal}
+                onChange={(e) => setMensal(e.target.value)}
+                placeholder="Ex.: 1200"
+                inputMode="decimal"
+                className="num rounded-[8px] border border-border bg-surface-2 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </label>
+            <label className="grid gap-1.5 text-xs text-muted-foreground sm:col-span-2">
+              O que é feito para este cliente
+              <textarea
+                value={servico}
+                onChange={(e) => setServico(e.target.value)}
+                placeholder="Ex.: Meta Ads, Google Ads, site e relatórios"
+                rows={3}
+                className="resize-none rounded-[8px] border border-border bg-surface-2 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </label>
+            <label className="grid gap-1.5 text-xs text-muted-foreground">
+              Dia do pagamento
+              <input
+                value={diaPagamento}
+                onChange={(e) => setDiaPagamento(e.target.value)}
+                placeholder="Ex.: Dia 10"
+                className="rounded-[8px] border border-border bg-surface-2 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </label>
+            <label className="grid gap-1.5 text-xs text-muted-foreground">
+              Observação
+              <input
+                value={observacao}
+                onChange={(e) => setObservacao(e.target.value)}
+                placeholder="Informação opcional"
+                className="rounded-[8px] border border-border bg-surface-2 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogAberto(false)}>Cancelar</Button>
+            <Button
+              onClick={salvarCliente}
+              disabled={salvando || !nome.trim()}
+              className="gold-gradient text-primary-foreground"
+            >
+              {salvando ? "Salvando..." : editando ? "Salvar alterações" : "Adicionar cliente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
