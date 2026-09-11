@@ -91,6 +91,89 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_notes: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          texto: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          texto: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          texto?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_owner_fkey"
+            columns: ["lead_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          arquivado: boolean
+          campanha: string | null
+          created_at: string
+          data_entrada: string
+          id: string
+          nicho: string | null
+          nome: string
+          origem: string
+          proxima_acao: string | null
+          proxima_acao_em: string | null
+          status: string
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          arquivado?: boolean
+          campanha?: string | null
+          created_at?: string
+          data_entrada?: string
+          id?: string
+          nicho?: string | null
+          nome: string
+          origem?: string
+          proxima_acao?: string | null
+          proxima_acao_em?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          arquivado?: boolean
+          campanha?: string | null
+          created_at?: string
+          data_entrada?: string
+          id?: string
+          nicho?: string | null
+          nome?: string
+          origem?: string
+          proxima_acao?: string | null
+          proxima_acao_em?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       metas: {
         Row: {
           alvo: number
