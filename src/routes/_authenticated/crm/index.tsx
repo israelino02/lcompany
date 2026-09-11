@@ -5,9 +5,9 @@ import { CRM_ORIGINS, ORIGIN_LABEL, type LeadOrigin } from "@/lib/crm";
 
 export const Route = createFileRoute("/_authenticated/crm/")({
   head: () => ({ meta: [
-    { title: "Relatório Geral — CRM Altivus" },
-    { name: "description", content: "Indicadores gerais, conversão e desempenho comercial do CRM Altivus." },
-    { property: "og:title", content: "Relatório Geral — CRM Altivus" },
+    { title: "Relatório Geral — CRM Lino Company" },
+    { name: "description", content: "Indicadores gerais, conversão e desempenho comercial do CRM Lino Company." },
+    { property: "og:title", content: "Relatório Geral — CRM Lino Company" },
     { property: "og:description", content: "Indicadores gerais e conversão comercial por origem." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -32,7 +32,7 @@ function DashboardPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1500px] px-4 py-7 sm:px-6">
-      <div><p className="label-caps text-crm-light">CRM Altivus</p><h1 className="mt-1 text-2xl font-semibold sm:text-3xl">Relatório Geral</h1><p className="mt-1 text-sm text-muted-foreground">Visão rápida da operação comercial.</p></div>
+      <div><p className="label-caps text-crm-light">CRM Lino Company</p><h1 className="mt-1 text-2xl font-semibold sm:text-3xl">Relatório Geral</h1><p className="mt-1 text-sm text-muted-foreground">Visão rápida da operação comercial.</p></div>
       {loading ? <div className="mt-7 text-sm text-muted-foreground">Carregando indicadores…</div> : <>
         <section className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">{metrics.map(({ label, value, icon: Icon }) => <article key={label} className="surface-card p-4"><div className="flex items-center justify-between"><p className="text-xs font-medium text-muted-foreground">{label}</p><Icon size={16} className="text-crm-light" /></div><strong className="num mt-4 block text-3xl font-semibold">{value}</strong></article>)}</section>
         <section className="mt-5 border-t border-border pt-6"><div className="flex items-end justify-between gap-3"><div><h2 className="text-lg font-semibold">Conversão por origem</h2><p className="text-xs text-muted-foreground">Fechados sobre resultados definitivos.</p></div></div>

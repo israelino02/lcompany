@@ -29,7 +29,7 @@ function AuthenticatedLayout() {
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex min-h-14 w-full max-w-[1500px] items-center gap-3 px-4 sm:px-6">
           <Link to="/agenda" className="mr-auto font-display text-xl font-semibold text-foreground">
-            Altivus<span className="text-crm">.</span>
+            Lino Company<span className="text-crm">.</span>
           </Link>
           <nav aria-label="Navegação principal" className="flex items-center gap-1 overflow-x-auto">
             <Link to="/agenda" className={linkClass} activeProps={{ className: "bg-surface-3 text-foreground" }}>

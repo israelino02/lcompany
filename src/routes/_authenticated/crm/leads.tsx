@@ -8,9 +8,9 @@ import { CRM_STATUSES, STATUS_LABEL, formatActionDate, originLabel } from "@/lib
 
 export const Route = createFileRoute("/_authenticated/crm/leads")({
   head: () => ({ meta: [
-    { title: "Leads Ativos — CRM Altivus" },
+    { title: "Leads Ativos — CRM Lino Company" },
     { name: "description", content: "Lista de leads ordenada pela próxima ação comercial." },
-    { property: "og:title", content: "Leads Ativos — CRM Altivus" },
+    { property: "og:title", content: "Leads Ativos — CRM Lino Company" },
     { property: "og:description", content: "Gerencie leads, próximas ações, arquivamento e histórico." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

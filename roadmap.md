@@ -1,7 +1,7 @@
 # Roadmap
 
 - [x] Criar estrutura segura de leads e observações
-- [x] Adicionar navegação Altivus compartilhada
+- [x] Adicionar navegação Lino Company compartilhada
 - [x] Criar Relatório Geral
 - [x] Criar Funil com movimentação entre fases
 - [x] Criar Leads Ativos, cadastro, edição e histórico
