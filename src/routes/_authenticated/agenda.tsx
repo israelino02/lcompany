@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendario } from "@/components/agenda/Calendario";
@@ -46,7 +46,6 @@ const erroSalvar = () =>
   toast.error("Não foi possível salvar. Verifique sua conexão.");
 
 function AgendaPage() {
-  const navigate = useNavigate();
   const hoje = useMemo(() => ymd(new Date()), []);
   const [ano, setAno] = useState(() => new Date().getFullYear());
   const [mes, setMes] = useState(() => new Date().getMonth());
@@ -280,11 +279,6 @@ function AgendaPage() {
     setChecagens((prev) => [...prev, ...(data as Checagem[])]);
   }
 
-  async function sair() {
-    await supabase.auth.signOut();
-    navigate({ to: "/" });
-  }
-
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -322,14 +316,6 @@ function AgendaPage() {
             className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-border bg-surface-2 text-muted-foreground"
           >
             <ChevronRight size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={sair}
-            className="ml-1 flex items-center gap-1.5 rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-xs text-muted-foreground"
-          >
-            <LogOut size={13} />
-            Sair
           </button>
         </div>
       </header>

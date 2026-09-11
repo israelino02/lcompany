@@ -47,6 +47,9 @@
   --color-importante: var(--importante);
   --color-rotina: var(--rotina);
   --color-feito: var(--feito);
+  --color-crm: var(--crm);
+  --color-crm-light: var(--crm-light);
+  --color-crm-soft: var(--crm-soft);
 }
 
 :root {
@@ -64,6 +67,9 @@
   --importante: #d4af37;
   --rotina: #5b8fc7;
   --feito: #3fbf8f;
+  --crm: #f07a32;
+  --crm-light: #ff9b5e;
+  --crm-soft: rgb(240 122 50 / 14%);
   --border: rgb(255 255 255 / 7%);
   --border-gold: rgb(212 175 55 / 16%);
   --primary: #d4af37;
