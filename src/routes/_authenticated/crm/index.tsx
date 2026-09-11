@@ -5,9 +5,9 @@ import { CRM_ORIGINS, ORIGIN_LABEL, type LeadOrigin } from "@/lib/crm";
 
 export const Route = createFileRoute("/_authenticated/crm/")({
   head: () => ({ meta: [
-    { title: "Relatório Geral — CRM Altivus" },
-    { name: "description", content: "Indicadores gerais, conversão e desempenho comercial do CRM Altivus." },
-    { property: "og:title", content: "Relatório Geral — CRM Altivus" },
+    { title: "Relatório Geral — CRM Lino Company" },
+    { name: "description", content: "Indicadores gerais, conversão e desempenho comercial do CRM Lino Company." },
+    { property: "og:title", content: "Relatório Geral — CRM Lino Company" },
     { property: "og:description", content: "Indicadores gerais e conversão comercial por origem." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

@@ -7,7 +7,7 @@ import { CRM_STATUSES, STATUS_LABEL, formatActionDate, type Lead, type LeadStatu
 
 export const Route = createFileRoute("/_authenticated/crm/funil")({
   head: () => ({ meta: [
-    { title: "Funil de Vendas — CRM Altivus" },
+    { title: "Funil de Vendas — CRM Lino Company" },
     { name: "description", content: "Funil comercial visual com movimentação de leads entre etapas." },
     { property: "og:title", content: "Funil de Vendas — CRM Altivus" },
     { property: "og:description", content: "Acompanhe e mova cada lead pelas etapas do processo comercial." },
