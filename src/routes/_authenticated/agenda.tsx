@@ -369,13 +369,6 @@ function AgendaPage() {
           />
         </div>
         <div className="flex flex-col gap-5">
-          <Metas
-            metas={metas}
-            onAdicionar={adicionarMeta}
-            onAjustar={ajustarMeta}
-            onExcluir={excluirMeta}
-          />
-          <Pendencias tarefas={tarefas} />
           <ChecklistClientes
             dia={selecionado}
             clientes={clientes}
@@ -387,6 +380,13 @@ function AgendaPage() {
             onAlternar={alternarChecagem}
             onMarcarTodos={marcarTodosDoBloco}
           />
+          <Metas
+            metas={metas}
+            onAdicionar={adicionarMeta}
+            onAjustar={ajustarMeta}
+            onExcluir={excluirMeta}
+          />
+          <Pendencias tarefas={tarefas} />
         </div>
       </div>
     </main>
