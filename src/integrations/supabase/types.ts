@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      checagens: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          data: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          data: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          data?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checagens_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clientes: {
+        Row: {
+          agencia: string
+          ativo: boolean
+          created_at: string
+          dia_pagamento: string | null
+          id: string
+          mensal: number | null
+          nome: string
+          observacao: string | null
+          ordem: number
+          servico: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agencia?: string
+          ativo?: boolean
+          created_at?: string
+          dia_pagamento?: string | null
+          id?: string
+          mensal?: number | null
+          nome: string
+          observacao?: string | null
+          ordem?: number
+          servico?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agencia?: string
+          ativo?: boolean
+          created_at?: string
+          dia_pagamento?: string | null
+          id?: string
+          mensal?: number | null
+          nome?: string
+          observacao?: string | null
+          ordem?: number
+          servico?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       metas: {
         Row: {
           alvo: number

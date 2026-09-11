@@ -7,6 +7,8 @@ import { Calendario } from "@/components/agenda/Calendario";
 import { PainelDia } from "@/components/agenda/PainelDia";
 import { Metas } from "@/components/agenda/Metas";
 import { Pendencias } from "@/components/agenda/Pendencias";
+import { ChecklistClientes } from "@/components/agenda/ChecklistClientes";
+import type { Checagem, Cliente } from "@/lib/clientes";
 import {
   MESES,
   conclusaoDoMes,
@@ -52,6 +54,8 @@ function AgendaPage() {
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [metas, setMetas] = useState<Meta[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [checagens, setChecagens] = useState<Checagem[]>([]);
 
   const chaveMes = mesKey(ano, mes);
   const dias = useMemo(() => diasDoMes(ano, mes), [ano, mes]);
@@ -63,7 +67,7 @@ function AgendaPage() {
   const carregar = useCallback(async () => {
     const primeiro = dias[0]!;
     const ultimo = dias[dias.length - 1]!;
-    const [rt, rm] = await Promise.all([
+    const [rt, rm, rc, rk] = await Promise.all([
       supabase
         .from("tarefas")
         .select("*")
@@ -75,13 +79,17 @@ function AgendaPage() {
         .select("*")
         .eq("mes", chaveMes)
         .order("created_at", { ascending: true }),
+      supabase.from("clientes").select("*").order("ordem", { ascending: true }),
+      supabase.from("checagens").select("*").gte("data", primeiro).lte("data", ultimo),
     ]);
-    if (rt.error || rm.error) {
+    if (rt.error || rm.error || rc.error || rk.error) {
       toast.error("Não foi possível carregar os dados do mês.");
       return;
     }
     setTarefas((rt.data ?? []) as Tarefa[]);
     setMetas((rm.data ?? []) as Meta[]);
+    setClientes((rc.data ?? []) as Cliente[]);
+    setChecagens((rk.data ?? []) as Checagem[]);
   }, [chaveMes, dias]);
 
   useEffect(() => {
@@ -224,6 +232,54 @@ function AgendaPage() {
     }
   }
 
+  async function alternarChecagem(c: Cliente) {
+    if (!userId) return;
+    const existente = checagens.find(
+      (x) => x.cliente_id === c.id && x.data === selecionado,
+    );
+    if (existente) {
+      setChecagens((prev) => prev.filter((x) => x.id !== existente.id));
+      const { error } = await supabase.from("checagens").delete().eq("id", existente.id);
+      if (error) {
+        setChecagens((prev) => [...prev, existente]);
+        erroSalvar();
+      }
+      return;
+    }
+    const { data, error } = await supabase
+      .from("checagens")
+      .insert({ user_id: userId, cliente_id: c.id, data: selecionado })
+      .select()
+      .single();
+    if (error || !data) {
+      erroSalvar();
+      return;
+    }
+    setChecagens((prev) => [...prev, data as Checagem]);
+  }
+
+  async function marcarTodosDoBloco(agencia: string) {
+    if (!userId) return;
+    const feitos = new Set(
+      checagens.filter((x) => x.data === selecionado).map((x) => x.cliente_id),
+    );
+    const faltando = clientes.filter(
+      (c) => c.ativo && c.agencia === agencia && !feitos.has(c.id),
+    );
+    if (faltando.length === 0) return;
+    const { data, error } = await supabase
+      .from("checagens")
+      .insert(
+        faltando.map((c) => ({ user_id: userId, cliente_id: c.id, data: selecionado })),
+      )
+      .select();
+    if (error || !data) {
+      erroSalvar();
+      return;
+    }
+    setChecagens((prev) => [...prev, ...(data as Checagem[])]);
+  }
+
   async function sair() {
     await supabase.auth.signOut();
     navigate({ to: "/" });
@@ -320,6 +376,17 @@ function AgendaPage() {
             onExcluir={excluirMeta}
           />
           <Pendencias tarefas={tarefas} />
+          <ChecklistClientes
+            dia={selecionado}
+            clientes={clientes}
+            checados={
+              new Set(
+                checagens.filter((c) => c.data === selecionado).map((c) => c.cliente_id),
+              )
+            }
+            onAlternar={alternarChecagem}
+            onMarcarTodos={marcarTodosDoBloco}
+          />
         </div>
       </div>
     </main>
