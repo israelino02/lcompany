@@ -67,7 +67,7 @@ function AgendaPage() {
   const carregar = useCallback(async () => {
     const primeiro = dias[0]!;
     const ultimo = dias[dias.length - 1]!;
-    const [rt, rm] = await Promise.all([
+    const [rt, rm, rc, rk] = await Promise.all([
       supabase
         .from("tarefas")
         .select("*")
@@ -79,13 +79,17 @@ function AgendaPage() {
         .select("*")
         .eq("mes", chaveMes)
         .order("created_at", { ascending: true }),
+      supabase.from("clientes").select("*").order("ordem", { ascending: true }),
+      supabase.from("checagens").select("*").gte("data", primeiro).lte("data", ultimo),
     ]);
-    if (rt.error || rm.error) {
+    if (rt.error || rm.error || rc.error || rk.error) {
       toast.error("Não foi possível carregar os dados do mês.");
       return;
     }
     setTarefas((rt.data ?? []) as Tarefa[]);
     setMetas((rm.data ?? []) as Meta[]);
+    setClientes((rc.data ?? []) as Cliente[]);
+    setChecagens((rk.data ?? []) as Checagem[]);
   }, [chaveMes, dias]);
 
   useEffect(() => {
