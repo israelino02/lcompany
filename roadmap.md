@@ -1,8 +1,8 @@
 # Roadmap
 
 - [x] Criar estrutura segura de leads e observações
-- [ ] Adicionar navegação Altivus compartilhada
-- [ ] Criar Relatório Geral
-- [ ] Criar Funil com movimentação entre fases
-- [ ] Criar Leads Ativos, cadastro, edição e histórico
-- [ ] Validar fluxos no desktop e celular
+- [x] Adicionar navegação Altivus compartilhada
+- [x] Criar Relatório Geral
+- [x] Criar Funil com movimentação entre fases
+- [x] Criar Leads Ativos, cadastro, edição e histórico
+- [x] Validar fluxos no desktop e celular
