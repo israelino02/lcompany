@@ -7,6 +7,6 @@
 - [x] Criar Leads Ativos, cadastro, edição e histórico
 - [x] Validar fluxos no desktop e celular
 - [x] Restaurar o cliente removido da Agência Náutico
-- [x] Confirmar mensalidade da 7 Fios em R$ 1.200
+- [x] Ajustar mensalidade da 7 Fios para R$ 500
 - [x] Permitir cadastrar e editar todos os dados dos clientes
-- [ ] Validar cadastro e edição de clientes
+- [x] Validar cadastro e edição de clientes
