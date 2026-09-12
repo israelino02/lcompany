@@ -52,7 +52,9 @@ function FunnelPage() {
     const target = index + direction;
     if (index < 0 || target < 0 || target >= order.length) return;
     const next = [...order];
-    [next[index], next[target]] = [next[target], next[index]];
+    const a = next[index]!;
+    next[index] = next[target]!;
+    next[target] = a;
     saveOrder(next);
   }
 
